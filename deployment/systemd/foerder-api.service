@@ -1,0 +1,23 @@
+[Unit]
+Description=Förder-Finder FastAPI Backend
+After=network.target
+
+[Service]
+Type=simple
+User=opc
+WorkingDirectory=/opt/foerder-finder-backend/api
+Environment="PATH=/opt/foerder-finder-backend/venv/bin"
+ExecStart=/opt/foerder-finder-backend/venv/bin/gunicorn \
+  -w 4 \
+  -k uvicorn.workers.UvicornWorker \
+  -b 0.0.0.0:8000 \
+  --timeout 120 \
+  --access-logfile /var/log/foerder-api-access.log \
+  --error-logfile /var/log/foerder-api-error.log \
+  main:app
+
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

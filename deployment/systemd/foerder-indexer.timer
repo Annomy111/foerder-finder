@@ -1,0 +1,10 @@
+[Unit]
+Description=Förder-Finder RAG Indexer Timer (30 Min nach Scraper)
+
+[Timer]
+OnBootSec=35min
+OnUnitActiveSec=12h
+Persistent=true
+
+[Install]
+WantedBy=timers.target

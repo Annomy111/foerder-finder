@@ -1,0 +1,16 @@
+[Unit]
+Description=Förder-Finder RAG Indexer
+After=network.target
+
+[Service]
+Type=oneshot
+User=opc
+WorkingDirectory=/opt/foerder-finder-backend/rag_indexer
+Environment="PATH=/opt/foerder-finder-backend/venv/bin"
+ExecStart=/opt/foerder-finder-backend/venv/bin/python3 build_index.py
+
+StandardOutput=append:/var/log/foerder-indexer.log
+StandardError=append:/var/log/foerder-indexer.log
+
+[Install]
+WantedBy=multi-user.target

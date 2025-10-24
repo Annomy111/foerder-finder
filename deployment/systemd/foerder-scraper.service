@@ -1,0 +1,16 @@
+[Unit]
+Description=Förder-Finder Scrapy Spider
+After=network.target
+
+[Service]
+Type=oneshot
+User=opc
+WorkingDirectory=/opt/foerder-finder-backend/scraper
+Environment="PATH=/opt/foerder-finder-backend/venv/bin"
+ExecStart=/opt/foerder-finder-backend/venv/bin/python3 -m scrapy crawl all_spiders
+
+StandardOutput=append:/var/log/foerder-scraper.log
+StandardError=append:/var/log/foerder-scraper.log
+
+[Install]
+WantedBy=multi-user.target
