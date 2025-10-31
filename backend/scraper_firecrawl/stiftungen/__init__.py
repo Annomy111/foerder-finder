@@ -1,0 +1,1 @@
+# Stiftungen Scraper Package

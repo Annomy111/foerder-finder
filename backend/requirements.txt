@@ -15,12 +15,12 @@ python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
 PyJWT==2.8.0
 
-# Scraping
-scrapy==2.11.0
-scrapy-user-agents==0.1.1
+# Scraping (Migrating from Firecrawl to Crawl4AI)
 requests==2.31.0
-beautifulsoup4==4.12.2
-lxml==4.9.3
+crawl4ai==0.7.6  # NEW: Production-ready async scraper (replaces Firecrawl)
+playwright>=1.49.0  # NEW: Browser automation for Crawl4AI
+# Removed: scrapy, scrapy-user-agents, beautifulsoup4, lxml
+# OLD: self-hosted Firecrawl on 130.61.137.77:3002 (being replaced)
 
 # RAG & AI
 langchain==0.1.0
@@ -28,6 +28,10 @@ chromadb==0.4.18
 sentence-transformers==2.2.2
 httpx==0.25.2
 openai==1.5.0
+
+# Advanced RAG Components (State-of-the-Art)
+FlagEmbedding>=1.2.0  # BGE-M3 embeddings + reranker
+rank-bm25>=0.2.2  # BM25 sparse retrieval for hybrid search
 
 # Vector Embeddings
 torch==2.1.1
