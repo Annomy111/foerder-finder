@@ -4,7 +4,21 @@ RAG Indexing Service - ChromaDB Indexierung
 Liest Fördermittel-Texte aus Oracle DB, chunked sie und erstellt Vektor-Index
 
 WICHTIG: Muss NACH dem Scraper laufen (cronjob: 30 Min später)
+
+UPDATE 2025-10-27: Now using Firecrawl for scraping.
+cleaned_text is LLM-ready markdown (no HTML cleaning needed!)
 """
+
+# CRITICAL: pysqlite3-binary workaround MUST be at the very top
+# ChromaDB requires SQLite 3.35+, but system SQLite may be older
+# This substitutes pysqlite3 module before ChromaDB imports sqlite3
+try:
+    __import__('pysqlite3')
+    import sys as _sys
+    _sys.modules['sqlite3'] = _sys.modules.pop('pysqlite3')
+except ImportError:
+    # pysqlite3-binary not installed, will use system SQLite (may fail)
+    pass
 
 import os
 import sys
@@ -59,12 +73,13 @@ class RAGIndexer:
         )
 
         # Text Splitter
+        # Optimized for Firecrawl markdown: split on paragraphs, headers, lists
         chunk_size = int(os.getenv('RAG_CHUNK_SIZE', 1000))
         chunk_overlap = int(os.getenv('RAG_CHUNK_OVERLAP', 200))
         self.text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=chunk_size,
             chunk_overlap=chunk_overlap,
-            separators=['\n\n', '\n', '. ', ' ', '']
+            separators=['\n\n', '\n', '. ', ' ', '']  # Markdown-friendly
         )
 
         print(f'[INFO] Text Splitter: chunk_size={chunk_size}, overlap={chunk_overlap}')

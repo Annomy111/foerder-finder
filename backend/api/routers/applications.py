@@ -12,7 +12,7 @@ from typing import List
 
 from api.models import Application, ApplicationCreate, ApplicationUpdate
 from api.auth_utils import get_current_user
-from utils.database import get_db_cursor
+from utils.db_adapter import get_db_cursor
 
 router = APIRouter()
 

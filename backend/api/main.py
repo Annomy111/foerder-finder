@@ -33,9 +33,8 @@ else:
 if USE_ADVANCED_RAG:
     print('[STARTUP] Loading Advanced RAG Router (v2)...')
     from api.routers import drafts_advanced
-
-# Search Router
-from api.routers import search
+    # Search Router (requires ChromaDB)
+    from api.routers import search
 
 # Admin Router (Protected)
 from api.routers import admin
@@ -90,12 +89,12 @@ app.include_router(auth.router, prefix='/api/v1/auth', tags=['Authentication'])
 app.include_router(funding.router, prefix='/api/v1/funding', tags=['Funding'])
 app.include_router(applications.router, prefix='/api/v1/applications', tags=['Applications'])
 app.include_router(drafts.router, prefix='/api/v1/drafts', tags=['AI Drafts'])
-app.include_router(search.router, prefix='/api/v1/search', tags=['RAG Search'])
 app.include_router(admin.router, prefix='/api/v1/admin', tags=['Admin (Protected)'])
 
 # Advanced RAG Router (v2) - A/B Testing
 if USE_ADVANCED_RAG:
     app.include_router(drafts_advanced.router, prefix='/api/v2/drafts', tags=['AI Drafts (Advanced RAG)'])
+    app.include_router(search.router, prefix='/api/v1/search', tags=['RAG Search'])
 
 
 @app.get('/')

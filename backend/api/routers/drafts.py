@@ -3,6 +3,17 @@ AI Drafts Router
 KI-generierte Antragsentwürfe mit RAG + DeepSeek
 """
 
+# CRITICAL: pysqlite3-binary workaround MUST be at the very top
+# ChromaDB requires SQLite 3.35+, but system SQLite may be older
+# This substitutes pysqlite3 module before ChromaDB imports sqlite3
+try:
+    __import__('pysqlite3')
+    import sys as _sys
+    _sys.modules['sqlite3'] = _sys.modules.pop('pysqlite3')
+except ImportError:
+    # pysqlite3-binary not installed, will use system SQLite (may fail)
+    pass
+
 import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '../../'))
@@ -18,7 +29,7 @@ from dotenv import load_dotenv
 
 from api.models import DraftGenerateRequest, DraftGenerateResponse, DraftFeedback
 from api.auth_utils import get_current_user
-from utils.database import get_db_cursor
+from utils.db_adapter import get_db_cursor
 from utils.oci_secrets import get_deepseek_api_key
 
 load_dotenv()

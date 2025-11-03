@@ -5,14 +5,14 @@ import { FileSearch } from 'lucide-react'
  */
 function EmptyState({ icon: Icon = FileSearch, title, description, action }) {
   return (
-    <div className="card text-center py-16 animate-fade-in">
-      <div className="flex justify-center mb-6">
-        <div className="p-4 bg-gray-100 rounded-full">
-          <Icon className="w-12 h-12 text-gray-400" />
+    <div className="card animate-fade-in py-16 text-center">
+      <div className="mb-6 flex justify-center">
+        <div className="flex h-16 w-16 items-center justify-center rounded-3xl bg-brand-navy/10">
+          <Icon className="h-9 w-9 text-brand-navy/60" />
         </div>
       </div>
-      <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
-      <p className="text-gray-600 mb-6 max-w-md mx-auto">{description}</p>
+      <h3 className="mb-2 text-lg font-semibold text-brand-navy">{title}</h3>
+      <p className="mx-auto mb-6 max-w-md text-slate-600">{description}</p>
       {action}
     </div>
   )

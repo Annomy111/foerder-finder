@@ -1,0 +1,6 @@
+name = "edufunds-deploy-proxy"
+main = "src/index.js"
+compatibility_date = "2024-10-01"
+
+[vars]
+BACKEND_SERVER = "130.61.76.199"

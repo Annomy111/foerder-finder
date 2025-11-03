@@ -1,0 +1,7 @@
+name = "edufunds-api-proxy"
+main = "worker.js"
+compatibility_date = "2025-10-28"
+
+[[routes]]
+pattern = "api.edufunds.org/*"
+zone_name = "edufunds.org"

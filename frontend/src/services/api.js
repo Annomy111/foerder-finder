@@ -135,6 +135,47 @@ export const draftsAPI = {
 }
 
 // ============================================================================
+// RAG Search Endpoints (NEW!)
+// ============================================================================
+
+export const searchAPI = {
+  /**
+   * Advanced semantic search with RAG pipeline
+   * @param {Object} params - Search parameters
+   * @param {string} params.query - Search query
+   * @param {number} params.top_k - Number of results (default: 10)
+   * @param {string} params.region - Filter by region
+   * @param {string} params.funding_id - Filter by funding ID
+   * @param {boolean} params.expand_queries - Enable query expansion (default: true)
+   * @param {boolean} params.rerank_results - Enable reranking (default: true)
+   */
+  search: async (params) => {
+    const response = await api.post('/api/v1/search/', params)
+    return response.data
+  },
+
+  /**
+   * Quick search (optimized for speed, no expansion/reranking)
+   * @param {string} query - Search query
+   * @param {number} limit - Number of results (default: 5)
+   */
+  quickSearch: async (query, limit = 5) => {
+    const response = await api.get('/api/v1/search/quick', {
+      params: { q: query, limit }
+    })
+    return response.data
+  },
+
+  /**
+   * RAG system health check
+   */
+  health: async () => {
+    const response = await api.get('/api/v1/search/health')
+    return response.data
+  }
+}
+
+// ============================================================================
 // Health Check
 // ============================================================================
 

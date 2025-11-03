@@ -12,7 +12,7 @@
 - **Framework**: FastAPI (Python 3.11+)
 - **Database**: Oracle Autonomous Database (ATP)
 - **Vector Store**: ChromaDB (lokal auf OCI VM)
-- **Scraping**: Scrapy mit Bright Data Proxy
+- **Scraping**: Firecrawl (self-hosted auf VM 130.61.137.77:3002) ✨ **UPDATED 2025-10-27**
 - **AI**: DeepSeek API (RAG-basierte Antragsgenerierung)
 - **Embeddings**: sentence-transformers/all-MiniLM-L6-v2
 - **ORM**: cx_Oracle (direkte SQL-Queries)
@@ -30,15 +30,16 @@
 - **DNS/CDN**: Cloudflare
 - **SSL**: Let's Encrypt (certbot)
 - **Secrets**: OCI Vault
-- **Proxy**: Bright Data Rotating Proxies
+- **Scraping Service**: Firecrawl (self-hosted VM 130.61.137.77) - $0/month ✨ **UPDATED 2025-10-27**
 
 ## Architektur-Komponenten
 
-### 1. Scraping Engine (Modul 1)
+### 1. Scraping Engine (Modul 1) ✨ **UPDATED 2025-10-27**
 - **Zweck**: Kontinuierliche Extraktion von Fördermitteldaten
-- **Scheduling**: cronjob alle 12 Stunden
-- **Datenfluss**: Internet → Scrapy → OCI Autonomous DB
-- **Proxy**: Bright Data für ethisches Scraping
+- **Technologie**: Firecrawl (self-hosted AI-powered scraper)
+- **Scheduling**: systemd timer alle 12 Stunden
+- **Datenfluss**: Internet → Firecrawl (130.61.137.77:3002) → LLM-ready Markdown → OCI Autonomous DB
+- **Vorteile**: Keine CSS-Selektoren, keine Proxy-Kosten, automatische Anpassung an Website-Änderungen
 
 ### 2. RAG Indexing Service (Modul 2a)
 - **Zweck**: Vektorisierung der Fördermitteltexte

@@ -14,9 +14,20 @@ from dotenv import load_dotenv
 
 import sys
 sys.path.append(os.path.join(os.path.dirname(__file__), '../'))
-from utils.oci_secrets import get_jwt_secret
 
 load_dotenv()
+
+# Auto-detect secrets source (OCI Vault vs Dev)
+USE_SQLITE = os.getenv('USE_SQLITE', 'false').lower() == 'true'
+
+if USE_SQLITE:
+    from utils.secrets_dev import get_jwt_secret
+else:
+    try:
+        from utils.oci_secrets import get_jwt_secret
+    except:
+        print("[AUTH] OCI import failed, using dev secrets")
+        from utils.secrets_dev import get_jwt_secret
 
 # Password Hashing
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')

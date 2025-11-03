@@ -64,12 +64,26 @@ class FundingOpportunity(BaseModel):
     max_funding_amount: Optional[float]
     tags: Optional[List[str]]
     scraped_at: datetime
+    cleaned_text: Optional[str] = None
 
 
 class FundingDetail(FundingOpportunity):
     """Detaillierte Förderausschreibung (inkl. Text)"""
-    cleaned_text: str
+    cleaned_text: str  # Override to make it required
     metadata: Optional[dict]
+
+    # Structured fields from scraper
+    eligibility: Optional[List[str]] = []
+    target_groups: Optional[List[str]] = []
+    evaluation_criteria: Optional[List[str]] = []
+    requirements: Optional[List[str]] = []
+    eligible_costs: Optional[List[str]] = []
+    application_process: Optional[str] = None
+    contact_person: Optional[str] = None
+    decision_timeline: Optional[str] = None
+    funding_period: Optional[str] = None
+    application_url: Optional[str] = None
+    extraction_quality_score: Optional[float] = None
 
 
 class FundingFilter(BaseModel):
@@ -108,14 +122,15 @@ class Application(BaseModel):
     """Antrag Response"""
     application_id: str
     school_id: str
-    user_id_created: str
-    funding_id_linked: Optional[str]
+    user_id: str
+    funding_id: Optional[str]
     title: str
     status: str
     projektbeschreibung: Optional[str]
     budget_total: Optional[float]
     submission_date: Optional[datetime]
     decision_status: Optional[str]
+    notes: Optional[str] = None
     created_at: datetime
     updated_at: datetime
 
@@ -131,7 +146,7 @@ class DraftGenerateRequest(BaseModel):
     user_query: str = Field(
         ...,
         description='Projektidee der Schule',
-        min_length=20,
+        min_length=5,
         max_length=5000
     )
 
@@ -148,7 +163,7 @@ class DraftGenerateResponse(BaseModel):
 class DraftFeedback(BaseModel):
     """User-Feedback zu generiertem Entwurf"""
     draft_id: str
-    feedback: str = Field(..., regex='^(helpful|not_helpful)$')
+    feedback: str = Field(..., pattern='^(helpful|not_helpful)$')
 
 
 # ============================================================================

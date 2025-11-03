@@ -1,0 +1,172 @@
+-- Oracle Database Schema for Förder-Finder Grundschule
+-- Production Schema Creation Script
+
+-- Drop existing tables if they exist (for fresh deployment)
+BEGIN
+   EXECUTE IMMEDIATE 'DROP TABLE APPLICATION_DRAFTS CASCADE CONSTRAINTS';
+EXCEPTION
+   WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+   EXECUTE IMMEDIATE 'DROP TABLE APPLICATIONS CASCADE CONSTRAINTS';
+EXCEPTION
+   WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+   EXECUTE IMMEDIATE 'DROP TABLE FUNDING_OPPORTUNITIES CASCADE CONSTRAINTS';
+EXCEPTION
+   WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+   EXECUTE IMMEDIATE 'DROP TABLE USERS CASCADE CONSTRAINTS';
+EXCEPTION
+   WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+   EXECUTE IMMEDIATE 'DROP TABLE SCHOOLS CASCADE CONSTRAINTS';
+EXCEPTION
+   WHEN OTHERS THEN NULL;
+END;
+/
+
+-- Drop sequences
+BEGIN
+   EXECUTE IMMEDIATE 'DROP SEQUENCE seq_schools';
+EXCEPTION
+   WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+   EXECUTE IMMEDIATE 'DROP SEQUENCE seq_users';
+EXCEPTION
+   WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+   EXECUTE IMMEDIATE 'DROP SEQUENCE seq_funding';
+EXCEPTION
+   WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+   EXECUTE IMMEDIATE 'DROP SEQUENCE seq_applications';
+EXCEPTION
+   WHEN OTHERS THEN NULL;
+END;
+/
+
+BEGIN
+   EXECUTE IMMEDIATE 'DROP SEQUENCE seq_drafts';
+EXCEPTION
+   WHEN OTHERS THEN NULL;
+END;
+/
+
+-- Create sequences
+CREATE SEQUENCE seq_schools START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE seq_users START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE seq_funding START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE seq_applications START WITH 1 INCREMENT BY 1;
+CREATE SEQUENCE seq_drafts START WITH 1 INCREMENT BY 1;
+
+-- Table: SCHOOLS (Mandanten - Grundschulen)
+CREATE TABLE SCHOOLS (
+    school_id VARCHAR2(36) PRIMARY KEY,
+    name VARCHAR2(255) NOT NULL,
+    address VARCHAR2(500),
+    city VARCHAR2(100),
+    state VARCHAR2(50),
+    postal_code VARCHAR2(20),
+    contact_email VARCHAR2(255),
+    contact_phone VARCHAR2(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Table: USERS (Nutzer mit Rollen)
+CREATE TABLE USERS (
+    user_id VARCHAR2(36) PRIMARY KEY,
+    school_id VARCHAR2(36) NOT NULL,
+    email VARCHAR2(255) UNIQUE NOT NULL,
+    password_hash VARCHAR2(255) NOT NULL,
+    full_name VARCHAR2(255),
+    role VARCHAR2(50) DEFAULT 'lehrkraft' CHECK (role IN ('admin', 'lehrkraft')),
+    is_active NUMBER(1) DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (school_id) REFERENCES SCHOOLS(school_id) ON DELETE CASCADE
+);
+
+-- Table: FUNDING_OPPORTUNITIES (Gescrapte Fördermittel)
+CREATE TABLE FUNDING_OPPORTUNITIES (
+    funding_id VARCHAR2(36) PRIMARY KEY,
+    title VARCHAR2(500) NOT NULL,
+    description CLOB,
+    funding_type VARCHAR2(100),
+    provider VARCHAR2(255),
+    amount_min NUMBER(12, 2),
+    amount_max NUMBER(12, 2),
+    deadline DATE,
+    url VARCHAR2(1000),
+    eligibility_criteria CLOB,
+    application_process CLOB,
+    cleaned_text CLOB,
+    scraped_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Table: APPLICATIONS (Anträge der Schulen)
+CREATE TABLE APPLICATIONS (
+    application_id VARCHAR2(36) PRIMARY KEY,
+    school_id VARCHAR2(36) NOT NULL,
+    funding_id VARCHAR2(36) NOT NULL,
+    user_id VARCHAR2(36) NOT NULL,
+    status VARCHAR2(50) DEFAULT 'draft' CHECK (status IN ('draft', 'submitted', 'approved', 'rejected', 'withdrawn')),
+    application_text CLOB,
+    submitted_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (school_id) REFERENCES SCHOOLS(school_id) ON DELETE CASCADE,
+    FOREIGN KEY (funding_id) REFERENCES FUNDING_OPPORTUNITIES(funding_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES USERS(user_id) ON DELETE CASCADE
+);
+
+-- Table: APPLICATION_DRAFTS (KI-generierte Entwürfe)
+CREATE TABLE APPLICATION_DRAFTS (
+    draft_id VARCHAR2(36) PRIMARY KEY,
+    school_id VARCHAR2(36) NOT NULL,
+    funding_id VARCHAR2(36) NOT NULL,
+    user_id VARCHAR2(36) NOT NULL,
+    draft_text CLOB NOT NULL,
+    school_context CLOB,
+    ai_model VARCHAR2(100),
+    generated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (school_id) REFERENCES SCHOOLS(school_id) ON DELETE CASCADE,
+    FOREIGN KEY (funding_id) REFERENCES FUNDING_OPPORTUNITIES(funding_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES USERS(user_id) ON DELETE CASCADE
+);
+
+-- Create indexes for performance
+CREATE INDEX idx_users_school ON USERS(school_id);
+CREATE INDEX idx_users_email ON USERS(email);
+CREATE INDEX idx_funding_deadline ON FUNDING_OPPORTUNITIES(deadline);
+CREATE INDEX idx_funding_type ON FUNDING_OPPORTUNITIES(funding_type);
+CREATE INDEX idx_applications_school ON APPLICATIONS(school_id);
+CREATE INDEX idx_applications_funding ON APPLICATIONS(funding_id);
+CREATE INDEX idx_applications_status ON APPLICATIONS(status);
+CREATE INDEX idx_drafts_school ON APPLICATION_DRAFTS(school_id);
+CREATE INDEX idx_drafts_funding ON APPLICATION_DRAFTS(funding_id);
+
+COMMIT;

@@ -1,0 +1,23 @@
+[Unit]
+Description=Förder-Finder Firecrawl Scraper Service
+After=network.target
+
+[Service]
+Type=oneshot
+User=opc
+WorkingDirectory=/opt/foerder-finder-backend/scraper_firecrawl
+Environment="PATH=/opt/foerder-finder-backend/venv/bin:/usr/local/bin:/usr/bin"
+Environment="PYTHONPATH=/opt/foerder-finder-backend"
+EnvironmentFile=/opt/foerder-finder-backend/.env
+
+ExecStart=/opt/foerder-finder-backend/venv/bin/python3 /opt/foerder-finder-backend/scraper_firecrawl/firecrawl_scraper.py
+
+StandardOutput=append:/var/log/foerder-firecrawl-scraper.log
+StandardError=append:/var/log/foerder-firecrawl-scraper.log
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

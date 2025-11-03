@@ -13,7 +13,7 @@ from typing import List
 
 from api.models import FundingOpportunity, FundingDetail, FundingFilter
 from api.auth_utils import get_current_user
-from utils.database import get_db_cursor
+from utils.db_adapter import get_db_cursor
 
 router = APIRouter()
 
@@ -136,7 +136,18 @@ async def get_funding_detail(
         tags,
         cleaned_text,
         metadata_json,
-        scraped_at
+        scraped_at,
+        eligibility,
+        target_groups,
+        evaluation_criteria,
+        requirements,
+        eligible_costs,
+        application_process,
+        contact_person,
+        decision_timeline,
+        funding_period,
+        application_url,
+        extraction_quality_score
     FROM FUNDING_OPPORTUNITIES
     WHERE RAWTOHEX(funding_id) = :funding_id
       AND is_active = 1
@@ -166,6 +177,20 @@ async def get_funding_detail(
         except json.JSONDecodeError:
             data['metadata'] = {}
         del data['metadata_json']
+
+    # Parse structured JSON array fields
+    json_array_fields = [
+        'eligibility', 'target_groups', 'evaluation_criteria',
+        'requirements', 'eligible_costs'
+    ]
+    for field in json_array_fields:
+        if data.get(field):
+            try:
+                data[field] = json.loads(data[field])
+            except (json.JSONDecodeError, TypeError):
+                data[field] = []
+        else:
+            data[field] = []
 
     return FundingDetail(**data)
 
